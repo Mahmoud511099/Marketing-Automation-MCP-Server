@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Campaign Optimization Report - {{ campaign.name }}{% endblock %}
+
+{% block report_title %}Campaign Optimization Report{% endblock %}
+
+{% block report_meta %}
+<span>Campaign: {{ campaign.name }}</span>
+<span>Platform: {{ campaign.platform|upper }}</span>
+<span>Analysis Period: Last {{ period_days }} days</span>
+<span>Generated: {{ generated_at }}</span>
+{% endblock %}
+
+{% block content %}
+<!-- Campaign Overview -->
+<div class="card">
+    <div class="card-header">
+        <h2>Campaign Overview</h2>
+        <p class="subtitle">Current status and configuration</p>
+    </div>
+    
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-label">Status</div>
+            <div class="metric-value" style="font-size: 1.5rem; text-transform: uppercase;">{{ campaign.status }}</div>
+        </div>
+        
+        <div class="metric-card">
+            <div class="metric-label">Budget</div>
+            <div class="metric-value" style="font-size: 1.5rem;">{{ campaign.budget|currency }}</div>
+        </div>
+        
+        <div class="metric-card">
+            <div class="metric-label">Start Date</div>
+            <div class="metric-value" style="font-size: 1.5rem;">{{ campaign.start_date[:10] }}</div>
+        </div>
+        
+        <div class="metric-card">
+            <div class="metric-label">Campaign ID</div>
+            <div class="metric-value" style="font-size: 1.5rem;">{{ campaign.campaign_id }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Optimization Impact -->
+<div class="card">
+    <div class="card-header">
+        <h2>Optimization Impact Analysis</h2>
+        <p class="subtitle">Performance improvements from AI-driven optimizations</p>
+    </div>
+    
+    {% if optimization_metrics %}
+    <div class="alert alert-success">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+        <span>Optimization applied on {{ optimization_metrics.optimization_date }}</span>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Metric</th>
+                <th>Before Optimization</th>
+                <th>After Optimization</th>
+                <th>Improvement</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Click-Through Rate (CTR)</td>
+                <td>{{ optimization_metrics.pre_optimization.avg_ctr|percentage }}</td>
+                <td>{{ optimization_metrics.post_optimization.avg_ctr|percentage }}</td>
+                <td class="{% if optimization_metrics.improvements.avg_ctr_improvement > 0 %}text-success{% else %}text-danger{% endif %}">
+                    {% if optimization_metrics.improvements.avg_ctr_improvement > 0 %}↑{% else %}↓{% endif %}
+                    {{ optimization_metrics.improvements.avg_ctr_improvement|percentage }}
+                </td>
+            </tr>
+            <tr>
+                <td>Conversion Rate</td>
+                <td>{{ optimization_metrics.pre_optimization.avg_conversion_rate|percentage }}</td>
+                <td>{{ optimization_metrics.post_optimization.avg_conversion_rate|percentage }}</td>
+                <td class="{% if optimization_metrics.improvements.avg_conversion_rate_improvement > 0 %}text-success{% else %}text-danger{% endif %}">
+                    {% if optimization_metrics.improvements.avg_conversion_rate_improvement > 0 %}↑{% else %}↓{% endif %}
+                    {{ optimization_metrics.improvements.avg_conversion_rate_improvement|percentage }}
+                </td>
+            </tr>
+            <tr>
+                <td>Cost Per Acquisition (CPA)</td>
+                <td>{{ optimization_metrics.pre_optimization.avg_cpa|currency }}</td>
+                <td>{{ optimization_metrics.post_optimization.avg_cpa|currency }}</td>
+                <td class="{% if optimization_metrics.improvements.avg_cpa_improvement > 0 %}text-success{% else %}text-danger{% endif %}">
+                    {% if optimization_metrics.improvements.avg_cpa_improvement > 0 %}↓{% else %}↑{% endif %}
+                    {{ optimization_metrics.improvements.avg_cpa_improvement|percentage }}
+                </td>
+            </tr>
+            <tr>
+                <td>Return on Ad Spend (ROAS)</td>
+                <td>{{ optimization_metrics.pre_optimization.avg_roas|round(2) }}x</td>
+                <td>{{ optimization_metrics.post_optimization.avg_roas|round(2) }}x</td>
+                <td class="{% if optimization_metrics.improvements.avg_roas_improvement > 0 %}text-success{% else %}text-danger{% endif %}">
+                    {% if optimization_metrics.improvements.avg_roas_improvement > 0 %}↑{% else %}↓{% endif %}
+                    {{ optimization_metrics.improvements.avg_roas_improvement|percentage }}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+
+<!-- Performance Heatmap -->
+<div class="card">
+    <div class="card-header">
+        <h2>Performance Metrics Heatmap</h2>
+        <p class="subtitle">Visual representation of key performance indicators</p>
+    </div>
+    
+    <div class="chart-container">
+        {{ charts.performance_heatmap|safe }}
+    </div>
+</div>
+
+<!-- Performance Trend -->
+<div class="card">
+    <div class="card-header">
+        <h2>Performance Trend</h2>
+        <p class="subtitle">Campaign performance over time</p>
+    </div>
+    
+    <div class="chart-container">
+        {{ charts.performance_trend|safe }}
+    </div>
+</div>
+
+<!-- Recent AI Decisions -->
+<div class="card">
+    <div class="card-header">
+        <h2>Recent AI-Driven Decisions</h2>
+        <p class="subtitle">Latest optimization decisions and their outcomes</p>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Decision Type</th>
+                <th>Action Taken</th>
+                <th>Confidence</th>
+                <th>Success Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for decision in ai_decisions %}
+            <tr>
+                <td>{{ decision.decision_timestamp[:10] }}</td>
+                <td>{{ decision.decision_type|replace('_', ' ')|title }}</td>
+                <td>{{ decision.decision_made|truncate(50) }}</td>
+                <td>{{ (decision.confidence_score * 100)|round(0) }}%</td>
+                <td>
+                    {% if decision.success_score %}
+                        <span class="{% if decision.success_score >= 80 %}text-success{% elif decision.success_score >= 60 %}text-warning{% else %}text-danger{% endif %}">
+                            {{ decision.success_score|round(0) }}%
+                        </span>
+                    {% else %}
+                        <span class="text-muted">Pending</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Optimization Recommendations -->
+<div class="card">
+    <div class="card-header">
+        <h2>Optimization Recommendations</h2>
+        <p class="subtitle">AI-powered suggestions for improving campaign performance</p>
+    </div>
+    
+    <div class="insights-grid">
+        {% for recommendation in recommendations %}
+        <div class="alert alert-{{ recommendation.type }}">
+            <div>
+                <strong>{{ recommendation.title }}</strong><br>
+                {{ recommendation.description }}<br>
+                <small><strong>Action:</strong> {{ recommendation.action }}</small>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Next Steps -->
+<div class="card">
+    <div class="card-header">
+        <h2>Recommended Next Steps</h2>
+        <p class="subtitle">Prioritized actions for campaign optimization</p>
+    </div>
+    
+    <ol style="line-height: 2;">
+        <li><strong>Implement AI Recommendations:</strong> Apply the suggested optimizations to improve performance metrics</li>
+        <li><strong>Monitor Performance:</strong> Track KPIs closely over the next 7 days to measure impact</li>
+        <li><strong>A/B Test Creative:</strong> Test new ad variations based on performance data</li>
+        <li><strong>Review Audience Targeting:</strong> Analyze audience segments for optimization opportunities</li>
+        <li><strong>Budget Reallocation:</strong> Consider shifting budget based on performance trends</li>
+    </ol>
+</div>
+
+<div class="page-break"></div>
+{% endblock %}

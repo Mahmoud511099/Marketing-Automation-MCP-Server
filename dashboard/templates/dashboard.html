@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Automation Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .metric-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 10px 0;
+        }
+        
+        .metric-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .metric-change {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .positive {
+            color: #27ae60;
+        }
+        
+        .negative {
+            color: #e74c3c;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .timeline {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .timeline-item {
+            padding: 10px;
+            border-left: 3px solid #3498db;
+            margin-bottom: 10px;
+            margin-left: 10px;
+            position: relative;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 15px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #3498db;
+        }
+        
+        .timeline-time {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .timeline-title {
+            font-weight: 600;
+            margin: 5px 0;
+        }
+        
+        .timeline-stats {
+            font-size: 14px;
+            color: #27ae60;
+        }
+        
+        .refresh-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .refresh-btn:hover {
+            background: #2980b9;
+        }
+        
+        .loading {
+            opacity: 0.5;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .updating {
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>🚀 Marketing Automation Dashboard</h1>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Key Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Time Saved (Month)</div>
+                <div class="metric-value" id="timeSaved">--</div>
+                <div class="metric-change positive">hours automated</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">Cost Saved (Month)</div>
+                <div class="metric-value" id="costSaved">--</div>
+                <div class="metric-change positive">in labor costs</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">ROI Improvement</div>
+                <div class="metric-value" id="roiImprovement">--</div>
+                <div class="metric-change positive">vs manual</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-label">Active Campaigns</div>
+                <div class="metric-value" id="activeCampaigns">--</div>
+                <div class="metric-change">being optimized</div>
+            </div>
+        </div>
+        
+        <!-- Charts Row -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <!-- Campaign Performance Chart -->
+            <div class="chart-container">
+                <div class="chart-title">Campaign Performance</div>
+                <div id="campaignChart" style="height: 300px;"></div>
+            </div>
+            
+            <!-- ROI Trend Chart -->
+            <div class="chart-container">
+                <div class="chart-title">ROI Trend</div>
+                <div id="roiChart" style="height: 300px;"></div>
+            </div>
+        </div>
+        
+        <!-- Automation Timeline -->
+        <div class="timeline">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div class="chart-title">Recent Automations</div>
+                <button class="refresh-btn" onclick="refreshData()">Refresh</button>
+            </div>
+            <div id="timeline"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Update metrics
+        async function updateMetrics() {
+            try {
+                const response = await fetch('/api/metrics');
+                const data = await response.json();
+                
+                document.getElementById('timeSaved').textContent = 
+                    data.time_saved_hours.toFixed(1) + 'h';
+                document.getElementById('costSaved').textContent = 
+                    '$' + data.cost_saved.toLocaleString();
+                document.getElementById('roiImprovement').textContent = 
+                    '+' + data.roi_improvement.toFixed(1) + '%';
+                document.getElementById('activeCampaigns').textContent = 
+                    data.total_campaigns;
+            } catch (error) {
+                console.error('Error updating metrics:', error);
+            }
+        }
+        
+        // Update campaign chart
+        async function updateCampaignChart() {
+            try {
+                const response = await fetch('/api/campaigns');
+                const campaigns = await response.json();
+                
+                const data = [{
+                    x: campaigns.map(c => c.name),
+                    y: campaigns.map(c => c.roi),
+                    type: 'bar',
+                    marker: {
+                        color: campaigns.map(c => c.is_automated ? '#27ae60' : '#e74c3c')
+                    }
+                }];
+                
+                const layout = {
+                    xaxis: { title: 'Campaign' },
+                    yaxis: { title: 'ROI %' },
+                    showlegend: false,
+                    margin: { t: 10, b: 100 }
+                };
+                
+                Plotly.newPlot('campaignChart', data, layout, {responsive: true});
+            } catch (error) {
+                console.error('Error updating campaign chart:', error);
+            }
+        }
+        
+        // Update ROI trend chart
+        async function updateROIChart() {
+            try {
+                const response = await fetch('/api/roi_trend');
+                const trend = await response.json();
+                
+                const data = [{
+                    x: trend.map(t => t.period),
+                    y: trend.map(t => t.roi_percentage),
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: { color: '#3498db', width: 3 },
+                    marker: { size: 8 }
+                }];
+                
+                const layout = {
+                    xaxis: { title: 'Period' },
+                    yaxis: { title: 'ROI %' },
+                    showlegend: false,
+                    margin: { t: 10 }
+                };
+                
+                Plotly.newPlot('roiChart', data, layout, {responsive: true});
+            } catch (error) {
+                console.error('Error updating ROI chart:', error);
+            }
+        }
+        
+        // Update timeline
+        async function updateTimeline() {
+            try {
+                const response = await fetch('/api/timeline');
+                const timeline = await response.json();
+                
+                const timelineHtml = timeline.map(item => {
+                    const date = new Date(item.timestamp);
+                    const timeStr = date.toLocaleString();
+                    
+                    return `
+                        <div class="timeline-item">
+                            <div class="timeline-time">${timeStr}</div>
+                            <div class="timeline-title">${item.task_name}</div>
+                            <div class="timeline-stats">
+                                Saved ${item.time_saved.toFixed(1)} minutes, 
+                                $${item.cost_saved.toFixed(2)}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('timeline').innerHTML = timelineHtml;
+            } catch (error) {
+                console.error('Error updating timeline:', error);
+            }
+        }
+        
+        // Refresh all data
+        async function refreshData() {
+            document.body.classList.add('updating');
+            
+            await Promise.all([
+                updateMetrics(),
+                updateCampaignChart(),
+                updateROIChart(),
+                updateTimeline()
+            ]);
+            
+            document.body.classList.remove('updating');
+        }
+        
+        // Initial load
+        refreshData();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(refreshData, 30000);
+    </script>
+</body>
+</html>

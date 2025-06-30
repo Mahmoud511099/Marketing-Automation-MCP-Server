@@ -1,0 +1,84 @@
+# Core MCP dependencies
+# mcp>=0.1.0  # Comment out for now as package not available yet
+
+# HTTP client for API integrations
+httpx>=0.27.0
+
+# Google API dependencies
+google-auth>=2.28.0
+google-auth-oauthlib>=1.2.0
+google-auth-httplib2>=0.2.0
+
+# OpenAI API
+openai>=1.12.0
+
+# Template rendering
+jinja2>=3.1.3
+
+# Data processing and analysis
+pandas>=2.2.0
+numpy>=1.26.0
+
+# Database ORM
+sqlalchemy>=2.0.0
+alembic>=1.13.0
+
+# Data validation
+pydantic>=2.6.0
+pydantic-settings>=2.2.0
+
+# Email functionality
+email-validator>=2.1.0
+
+# Task scheduling
+apscheduler>=3.10.0
+
+# API framework (for webhooks)
+fastapi>=0.110.0
+uvicorn>=0.29.0
+
+# Reporting and visualization
+plotly>=5.18.0
+kaleido>=0.2.1  # For plotly static image export
+weasyprint>=60.0  # For PDF generation
+
+# Testing
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+pytest-cov>=4.1.0
+
+# Development tools
+black>=24.0.0
+flake8>=7.0.0
+mypy>=1.8.0
+
+# Logging and monitoring
+structlog>=24.0.0
+python-json-logger>=2.0.0
+
+# Configuration
+python-dotenv>=1.0.0
+pyyaml>=6.0.0
+
+# Date/time handling
+python-dateutil>=2.9.0
+
+# JSON Schema validation
+jsonschema>=4.21.0
+
+# CLI interface
+click>=8.1.0
+tabulate>=0.9.0
+
+# Security
+cryptography>=42.0.0
+keyring>=24.0.0
+pyjwt>=2.8.0
+
+# Performance monitoring
+psutil>=5.9.0
+aioredis>=2.0.0
+
+# Additional testing
+faker>=22.0.0
+responses>=0.24.0

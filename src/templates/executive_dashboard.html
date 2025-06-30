@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Executive Dashboard - Marketing Automation{% endblock %}
+
+{% block report_title %}Executive Dashboard{% endblock %}
+
+{% block report_meta %}
+<span>Period: Last {{ period_days }} days</span>
+<span>Generated: {{ generated_at }}</span>
+{% endblock %}
+
+{% block content %}
+<!-- Key Performance Indicators -->
+<div class="card">
+    <div class="card-header">
+        <h2>Key Performance Indicators</h2>
+        <p class="subtitle">High-level metrics for executive overview</p>
+    </div>
+    
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-label">Total Revenue</div>
+            <div class="metric-value">{{ kpis.total_revenue|currency }}</div>
+            <div class="metric-change positive">ROAS: {{ kpis.overall_roas|round(1) }}x</div>
+        </div>
+        
+        <div class="metric-card">
+            <div class="metric-label">Cost Savings</div>
+            <div class="metric-value text-success">{{ kpis.cost_saved|currency }}</div>
+            <div class="metric-change positive">↑ {{ kpis.efficiency_gain|round(0) }}% efficiency</div>
+        </div>
+        
+        <div class="metric-card">
+            <div class="metric-label">Time Saved</div>
+            <div class="metric-value">{{ kpis.time_saved_hours|round(0) }}</div>
+            <div class="metric-change positive">Hours redirected</div>
+        </div>
+        
+        <div class="metric-card">
+            <div class="metric-label">AI Success Rate</div>
+            <div class="metric-value {% if kpis.ai_success_rate >= 80 %}text-success{% elif kpis.ai_success_rate >= 60 %}text-warning{% else %}text-danger{% endif %}">
+                {{ kpis.ai_success_rate|round(0) }}%
+            </div>
+            <div class="metric-change">Decision accuracy</div>
+        </div>
+    </div>
+</div>
+
+<!-- Campaign Overview -->
+<div class="card">
+    <div class="card-header">
+        <h2>Campaign Portfolio Status</h2>
+        <p class="subtitle">Overview of all marketing campaigns</p>
+    </div>
+    
+    <div class="insights-grid">
+        <div class="insight-card">
+            <div class="insight-icon info">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                </svg>
+            </div>
+            <div class="insight-content">
+                <h3>{{ campaign_stats.total }} Total Campaigns</h3>
+                <p>{{ campaign_stats.active }} active campaigns currently running</p>
+            </div>
+        </div>
+        
+        <div class="insight-card">
+            <div class="insight-icon success">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+            </div>
+            <div class="insight-content">
+                <h3>{{ automation_summary.total_tasks_automated }} Automated Tasks</h3>
+                <p>Completed in the last {{ period_days }} days</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Trend -->
+<div class="card">
+    <div class="card-header">
+        <h2>Performance Trend</h2>
+        <p class="subtitle">Campaign performance over time</p>
+    </div>
+    
+    <div class="chart-container">
+        {{ charts.performance_trend|safe }}
+    </div>
+</div>
+
+<!-- AI Decision Making -->
+<div class="card">
+    <div class="card-header">
+        <h2>AI-Driven Decision Making</h2>
+        <p class="subtitle">Effectiveness of automated optimizations</p>
+    </div>
+    
+    <div class="chart-container" style="max-width: 500px; margin: 0 auto;">
+        {{ charts.ai_success_gauge|safe }}
+    </div>
+</div>
+
+<!-- Top Performing Campaigns -->
+<div class="card">
+    <div class="card-header">
+        <h2>Top Performing Campaigns</h2>
+        <p class="subtitle">Campaigns driving the most value</p>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Campaign ID</th>
+                <th>Revenue</th>
+                <th>Conversions</th>
+                <th>ROAS</th>
+                <th>Performance</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for campaign in top_campaigns %}
+            <tr>
+                <td>#{{ campaign.campaign_id }}</td>
+                <td>{{ campaign.revenue|currency }}</td>
+                <td>{{ campaign.conversions|number }}</td>
+                <td>{{ campaign.avg_roas|round(2) }}x</td>
+                <td>
+                    {% if campaign.avg_roas > 3 %}
+                        <span class="text-success">↑ Excellent</span>
+                    {% elif campaign.avg_roas > 2 %}
+                        <span class="text-success">↑ Good</span>
+                    {% else %}
+                        <span class="text-warning">→ Average</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Strategic Insights -->
+<div class="card">
+    <div class="card-header">
+        <h2>Strategic Insights</h2>
+        <p class="subtitle">Key takeaways and opportunities</p>
+    </div>
+    
+    <div class="insights-grid">
+        {% for insight in insights %}
+        <div class="alert alert-{{ insight.type }}">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                {% if insight.icon == 'trending_up' %}
+                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
+                {% elif insight.icon == 'speed' %}
+                <path d="M20.38 8.57l-1.23 1.85a8 8 0 0 1-.22 7.58H5.07A8 8 0 0 1 15.58 6.85l1.85-1.23A10 10 0 0 0 3.35 19a2 2 0 0 0 1.72 1h13.85a2 2 0 0 0 1.74-1 10 10 0 0 0-.27-10.44z"/><path d="M10.59 15.41a2 2 0 0 0 2.83 0l5.66-8.49-8.49 5.66a2 2 0 0 0 0 2.83z"/>
+                {% elif insight.icon == 'psychology' %}
+                <path d="M13 8.57c-.79 0-1.43.64-1.43 1.43s.64 1.43 1.43 1.43 1.43-.64 1.43-1.43-.64-1.43-1.43-1.43z"/><path d="M13 3C9.25 3 6.2 5.94 6.02 9.64L4.1 12.2a.5.5 0 0 0 .4.8H6v3c0 1.1.9 2 2 2h1v3h7v-4.68A6.999 6.999 0 0 0 13 3zm3 10h-2v-2h2v2z"/>
+                {% elif insight.icon == 'attach_money' %}
+                <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.42 0 2.13.54 2.39 1.4.12.4.45.7.87.7h.3c.66 0 1.13-.65.9-1.27-.42-1.18-1.4-2.16-2.96-2.54V4.5c0-.83-.67-1.5-1.5-1.5S10 3.67 10 4.5v.66c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-1.65 0-2.5-.59-2.83-1.43-.15-.39-.49-.67-.9-.67h-.28c-.67 0-1.14.68-.89 1.3.57 1.39 1.9 2.21 3.4 2.53v.67c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-.65c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+                {% else %}
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                {% endif %}
+            </svg>
+            <div>
+                <strong>{{ insight.title }}</strong><br>
+                {{ insight.description }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Executive Summary -->
+<div class="card">
+    <div class="card-header">
+        <h2>Executive Summary</h2>
+        <p class="subtitle">Key findings and recommendations</p>
+    </div>
+    
+    <div style="line-height: 1.8;">
+        <h3>Performance Overview</h3>
+        <p>Marketing automation has delivered <strong>{{ kpis.cost_saved|currency }}</strong> in cost savings over the last {{ period_days }} days, 
+        with an average efficiency gain of <strong>{{ kpis.efficiency_gain|round(0) }}%</strong>. The AI-driven decision engine maintained a 
+        <strong>{{ kpis.ai_success_rate|round(0) }}%</strong> success rate, contributing to overall campaign performance improvements.</p>
+        
+        <h3>Financial Impact</h3>
+        <p>Total revenue generated reached <strong>{{ kpis.total_revenue|currency }}</strong> with an overall ROAS of 
+        <strong>{{ kpis.overall_roas|round(1) }}x</strong>, exceeding industry benchmarks. The automation platform saved 
+        <strong>{{ kpis.time_saved_hours|round(0) }} hours</strong> of manual work, allowing teams to focus on strategic initiatives.</p>
+        
+        <h3>Strategic Recommendations</h3>
+        <ol>
+            <li><strong>Scale Automation:</strong> Expand automation coverage to additional marketing processes</li>
+            <li><strong>Enhance AI Utilization:</strong> Increase reliance on AI for real-time optimization decisions</li>
+            <li><strong>Budget Reallocation:</strong> Shift resources from underperforming to high-ROAS campaigns</li>
+            <li><strong>Performance Monitoring:</strong> Implement weekly reviews of automation effectiveness</li>
+        </ol>
+        
+        <h3>Next Steps</h3>
+        <p>Continue monitoring key metrics and prepare for quarterly business review. Focus on maintaining the positive ROI trajectory 
+        while exploring new automation opportunities in emerging channels.</p>
+    </div>
+</div>
+
+<div class="page-break"></div>
+{% endblock %}

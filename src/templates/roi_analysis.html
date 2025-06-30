@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}ROI Analysis Report - Marketing Automation{% endblock %}
+
+{% block report_title %}ROI Analysis Report{% endblock %}
+
+{% block report_meta %}
+<span>Period: {{ period.start }} - {{ period.end }} ({{ period.days }} days)</span>
+<span>Generated: {{ generated_at }}</span>
+{% endblock %}
+
+{% block content %}
+<!-- ROI Summary -->
+<div class="card">
+    <div class="card-header">
+        <h2>Return on Investment Summary</h2>
+        <p class="subtitle">Overall ROI from marketing automation</p>
+    </div>
+    
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-label">Total ROI</div>
+            <div class="metric-value {% if roi_metrics.roi_percentage > 0 %}text-success{% else %}text-danger{% endif %}">
+                {{ roi_metrics.roi_percentage|round(1) }}%
+            </div>
+        </div>
+        
+        <div class="metric-card">
+            <div class="metric-label">Net Benefit</div>
+            <div class="metric-value">{{ roi_metrics.net_benefit|currency }}</div>
+        </div>
+        
+        <div class="metric-card">
+            <div class="metric-label">Total Cost Saved</div>
+            <div class="metric-value">{{ roi_metrics.total_cost_saved|currency }}</div>
+        </div>
+        
+        <div class="metric-card">
+            <div class="metric-label">Time Saved</div>
+            <div class="metric-value">{{ roi_metrics.total_time_saved_hours|round(1) }}</div>
+            <div class="metric-change positive">Hours</div>
+        </div>
+    </div>
+</div>
+
+<!-- ROI Breakdown Chart -->
+<div class="card">
+    <div class="card-header">
+        <h2>ROI Component Breakdown</h2>
+        <p class="subtitle">How value is generated through automation</p>
+    </div>
+    
+    <div class="chart-container">
+        {{ charts.roi_breakdown|safe }}
+    </div>
+    
+    <div class="insights-grid mt-20">
+        <div class="insight-card">
+            <div class="insight-icon success">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1.93.66 1.64 2.08 1.64 1.96 0 2.37-.79 2.37-1.54 0-1.06-.92-1.31-2.69-1.75-2.48-.62-4.04-1.36-4.04-3.68 0-1.95 1.45-3.08 3.21-3.44V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39h-1.96c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/>
+                </svg>
+            </div>
+            <div class="insight-content">
+                <h3>Labor Cost Savings</h3>
+                <p>{{ roi_metrics.labor_cost_saved|currency }} saved through task automation</p>
+            </div>
+        </div>
+        
+        <div class="insight-card">
+            <div class="insight-icon info">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM18.92 8h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.35.16-2h4.68c.09.65.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/>
+                </svg>
+            </div>
+            <div class="insight-content">
+                <h3>Performance Value Added</h3>
+                <p>{{ roi_metrics.performance_value_added|currency }} from improved campaign performance</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Time Savings Analysis -->
+<div class="card">
+    <div class="card-header">
+        <h2>Time Savings by Task Type</h2>
+        <p class="subtitle">Comparison of manual vs automated task duration</p>
+    </div>
+    
+    <div class="chart-container">
+        {{ charts.time_savings|safe }}
+    </div>
+    
+    <table class="mt-20">
+        <thead>
+            <tr>
+                <th>Task Type</th>
+                <th>Tasks Completed</th>
+                <th>Time Saved (Hours)</th>
+                <th>Cost Saved</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in task_breakdown %}
+            <tr>
+                <td>{{ task.task_type }}</td>
+                <td>{{ task.count }}</td>
+                <td>{{ task.time_saved_hours|round(1) }}</td>
+                <td>{{ task.cost_saved|currency }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Automation Efficiency -->
+<div class="card">
+    <div class="card-header">
+        <h2>Automation Efficiency Metrics</h2>
+        <p class="subtitle">Key performance indicators for automation effectiveness</p>
+    </div>
+    
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-label">Tasks Automated</div>
+            <div class="metric-value">{{ automation_summary.total_tasks_automated }}</div>
+        </div>
+        
+        <div class="metric-card">
+            <div class="metric-label">Average Efficiency Gain</div>
+            <div class="metric-value text-success">{{ automation_summary.average_efficiency_gain|percentage }}</div>
+        </div>
+        
+        <div class="metric-card">
+            <div class="metric-label">AI Success Rate</div>
+            <div class="metric-value">{{ automation_summary.ai_decision_success_rate|percentage }}</div>
+        </div>
+        
+        <div class="metric-card">
+            <div class="metric-label">Revenue Increase</div>
+            <div class="metric-value">{{ roi_metrics.revenue_increase|currency }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- ROI Projections -->
+<div class="card">
+    <div class="card-header">
+        <h2>ROI Projections</h2>
+        <p class="subtitle">Expected returns based on current performance</p>
+    </div>
+    
+    <div class="insights-grid">
+        <div class="insight-card">
+            <div class="insight-icon info">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                </svg>
+            </div>
+            <div class="insight-content">
+                <h3>Monthly Projection</h3>
+                <p><strong>${{ projections.monthly.projected_cost_saved|round(0) }}</strong> estimated savings</p>
+                <p>{{ projections.monthly.projected_time_saved|round(0) }} hours saved</p>
+                <p>{{ projections.monthly.projected_tasks }} tasks automated</p>
+            </div>
+        </div>
+        
+        <div class="insight-card">
+            <div class="insight-icon success">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                </svg>
+            </div>
+            <div class="insight-content">
+                <h3>Annual Projection</h3>
+                <p><strong>${{ projections.annual.projected_cost_saved|round(0) }}</strong> estimated savings</p>
+                <p>{{ projections.annual.projected_time_saved|round(0) }} hours saved</p>
+                <p>{{ projections.annual.projected_tasks }} tasks automated</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="alert alert-info mt-20">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+        </svg>
+        <span>Projections are based on current performance trends with {{ projections.monthly.confidence }} confidence</span>
+    </div>
+</div>
+
+<!-- Key Insights -->
+<div class="card">
+    <div class="card-header">
+        <h2>Key ROI Insights</h2>
+        <p class="subtitle">Strategic insights from ROI analysis</p>
+    </div>
+    
+    <div class="insights-grid">
+        {% if insights.roi_status == 'positive' %}
+        <div class="alert alert-success">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <div>
+                <strong>Positive ROI Achievement</strong><br>
+                Marketing automation is delivering strong returns with {{ roi_metrics.roi_percentage|round(0) }}% ROI
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if insights.most_automated_task %}
+        <div class="alert alert-info">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+            </svg>
+            <div>
+                <strong>Most Automated Task</strong><br>
+                {{ insights.most_automated_task }} shows highest automation adoption
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if insights.highest_time_saving_task %}
+        <div class="alert alert-info">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+            </svg>
+            <div>
+                <strong>Highest Time Savings</strong><br>
+                {{ insights.highest_time_saving_task }} delivers maximum time efficiency
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Recommendations -->
+<div class="card">
+    <div class="card-header">
+        <h2>Recommendations for ROI Improvement</h2>
+        <p class="subtitle">Actions to maximize return on automation investment</p>
+    </div>
+    
+    <ol style="line-height: 2;">
+        <li><strong>Scale Successful Automations:</strong> Expand automation to similar tasks showing high efficiency gains</li>
+        <li><strong>Optimize Low-Performing Areas:</strong> Review and improve automations with below-average efficiency</li>
+        <li><strong>Increase AI Utilization:</strong> Deploy more AI-driven decisions for campaign optimization</li>
+        <li><strong>Monitor Cost Centers:</strong> Track and reduce automation overhead costs</li>
+        <li><strong>Document Best Practices:</strong> Create playbooks for successful automation patterns</li>
+    </ol>
+</div>
+
+<div class="page-break"></div>
+{% endblock %}

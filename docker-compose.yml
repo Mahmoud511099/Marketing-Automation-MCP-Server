@@ -1,0 +1,144 @@
+version: '3.8'
+
+services:
+  # Marketing Automation MCP Server
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: marketing-automation-mcp
+    environment:
+      # OpenAI Configuration
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      
+      # Google Ads Configuration
+      - GOOGLE_ADS_DEVELOPER_TOKEN=${GOOGLE_ADS_DEVELOPER_TOKEN}
+      - GOOGLE_ADS_CLIENT_ID=${GOOGLE_ADS_CLIENT_ID}
+      - GOOGLE_ADS_CLIENT_SECRET=${GOOGLE_ADS_CLIENT_SECRET}
+      - GOOGLE_ADS_REFRESH_TOKEN=${GOOGLE_ADS_REFRESH_TOKEN}
+      - GOOGLE_ADS_CUSTOMER_ID=${GOOGLE_ADS_CUSTOMER_ID}
+      
+      # Facebook Ads Configuration
+      - FACEBOOK_APP_ID=${FACEBOOK_APP_ID}
+      - FACEBOOK_APP_SECRET=${FACEBOOK_APP_SECRET}
+      - FACEBOOK_ACCESS_TOKEN=${FACEBOOK_ACCESS_TOKEN}
+      - FACEBOOK_AD_ACCOUNT_ID=${FACEBOOK_AD_ACCOUNT_ID}
+      
+      # Google Analytics Configuration
+      - GOOGLE_ANALYTICS_PROPERTY_ID=${GOOGLE_ANALYTICS_PROPERTY_ID}
+      - GOOGLE_ANALYTICS_CLIENT_ID=${GOOGLE_ANALYTICS_CLIENT_ID}
+      - GOOGLE_ANALYTICS_CLIENT_SECRET=${GOOGLE_ANALYTICS_CLIENT_SECRET}
+      - GOOGLE_ANALYTICS_REFRESH_TOKEN=${GOOGLE_ANALYTICS_REFRESH_TOKEN}
+      
+      # Database Configuration
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/marketing_automation
+      
+      # Demo Mode
+      - DEMO_MODE=${DEMO_MODE:-false}
+    volumes:
+      - ./data:/app/data
+      - ./reports:/app/reports
+      - ./logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - marketing-network
+    restart: unless-stopped
+    command: python -m src.server
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: marketing-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=marketing_automation
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - marketing-network
+    restart: unless-stopped
+
+  # Redis for caching and rate limiting
+  redis:
+    image: redis:7-alpine
+    container_name: marketing-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - marketing-network
+    restart: unless-stopped
+
+  # Web Dashboard (Optional)
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    container_name: marketing-dashboard
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/marketing_automation
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - marketing-network
+    restart: unless-stopped
+    volumes:
+      - ./reports:/app/reports
+
+  # Demo Runner
+  demo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: marketing-demo
+    environment:
+      - DEMO_MODE=true
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./demo_output:/app/output
+    networks:
+      - marketing-network
+    command: python demo.py
+    profiles:
+      - demo
+
+  # Jupyter Notebook for Development
+  notebook:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: marketing-notebook
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/app/notebooks
+      - ./src:/app/src
+      - ./data:/app/data
+    networks:
+      - marketing-network
+    command: jupyter lab --ip=0.0.0.0 --no-browser --allow-root
+    profiles:
+      - development
+
+volumes:
+  postgres-data:
+  redis-data:
+
+networks:
+  marketing-network:
+    driver: bridge
