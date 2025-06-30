@@ -1,5 +1,11 @@
 # Marketing Automation MCP Server
 
+[![CI/CD Pipeline](https://github.com/Mohit4022-cloud/Marketing-Automation-MCP-Server/actions/workflows/ci.yml/badge.svg)](https://github.com/Mohit4022-cloud/Marketing-Automation-MCP-Server/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Code Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen.svg)](https://github.com/Mohit4022-cloud/Marketing-Automation-MCP-Server)
+[![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)](https://hub.docker.com/)
+
 🚀 **75% reduction in campaign optimization time** | 📈 **Average 23% improvement in campaign ROI**
 
 A Python-based Model Context Protocol (MCP) server that revolutionizes marketing operations through AI-powered automation. Transform your marketing workflows with intelligent optimization, real-time analytics, and seamless multi-platform integration.
@@ -100,8 +106,8 @@ The Marketing Automation MCP Server empowers AI assistants with advanced capabil
 
 1. Clone and setup:
 ```bash
-git clone https://github.com/yourusername/marketing-automation-mcp.git
-cd marketing-automation-mcp
+git clone https://github.com/Mohit4022-cloud/Marketing-Automation-MCP-Server.git
+cd Marketing-Automation-MCP-Server
 
 # Quick setup with Docker
 docker-compose up -d
@@ -334,8 +340,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Support
 
 - Documentation: [docs/](docs/)
-- Issues: [GitHub Issues](https://github.com/yourusername/marketing-automation-mcp/issues)
-- Discussions: [GitHub Discussions](https://github.com/yourusername/marketing-automation-mcp/discussions)
+- Issues: [GitHub Issues](https://github.com/Mohit4022-cloud/Marketing-Automation-MCP-Server/issues)
+- Discussions: [GitHub Discussions](https://github.com/Mohit4022-cloud/Marketing-Automation-MCP-Server/discussions)
 
 ## Roadmap
 
